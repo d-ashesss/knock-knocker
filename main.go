@@ -18,13 +18,13 @@ func main() {
 	s.LoadHTMLGlob("templates/*")
 	s.StaticFS("/static", http.Dir("static"))
 	s.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "index.gohtml", gin.H{"message": "HellWorld!"})
+		c.HTML(http.StatusOK, "login.gohtml", gin.H{"message": "HellWorld!"})
 	})
 	s.POST("/", func(c *gin.Context) {
 		var form LoginForm
 		if err := c.ShouldBind(&form); err != nil {
 			log.Print(err)
-			c.HTML(http.StatusBadRequest, "index.gohtml", gin.H{"message": "Invalid username or password"})
+			c.HTML(http.StatusBadRequest, "login.gohtml", gin.H{"message": "Invalid username or password"})
 			return
 		}
 		log.Print(form)
