@@ -37,7 +37,7 @@
     {{ block "style" .}}{{end}}
     <script src="/static/color-modes.js"></script>
 </head>
-<body class="d-flex bg-body-tertiary">
+<body class="bg-body-tertiary {{ block "bodyclass" . }}{{ end }}">
 
 <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
     <symbol id="check2" viewBox="0 0 16 16">
@@ -90,7 +90,7 @@
     </ul>
 </div>
 
-{{block "content" .}}{{end}}
+{{ block "content" . }}{{ end }}
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-HwwvtgBNo3bZJJLYd8oVXjrBZt8cqVSpeBNS5n7C8IVInixGAoxmnlMuBnhbgrkm"

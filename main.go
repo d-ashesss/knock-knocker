@@ -1,9 +1,11 @@
 package main
 
 import (
+	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"path/filepath"
 )
 
 type LoginForm struct {
@@ -15,8 +17,9 @@ type LoginForm struct {
 func main() {
 	//gin.SetMode(gin.ReleaseMode)
 	s := gin.Default()
-	s.LoadHTMLGlob("templates/*")
+	s.HTMLRender = loadTemplates("templates")
 	s.StaticFS("/static", http.Dir("static"))
+
 	s.GET("/", func(c *gin.Context) {
 		c.HTML(http.StatusOK, "login.gohtml", gin.H{"message": "HellWorld!"})
 	})
@@ -34,4 +37,27 @@ func main() {
 	if err := s.Run(":8181"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
+}
+
+func loadTemplates(templatesDir string) multitemplate.Renderer {
+	r := multitemplate.NewRenderer()
+
+	layouts, err := filepath.Glob(templatesDir + "/layouts/*.gohtml")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	includes, err := filepath.Glob(templatesDir + "/includes/*.gohtml")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	// Generate our templates map from our layouts/ and includes/ directories
+	for _, include := range includes {
+		layoutCopy := make([]string, len(layouts))
+		copy(layoutCopy, layouts)
+		files := append(layoutCopy, include)
+		r.AddFromFiles(filepath.Base(include), files...)
+	}
+	return r
 }

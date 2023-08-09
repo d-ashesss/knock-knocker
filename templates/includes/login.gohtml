@@ -1,8 +1,10 @@
-{{ template "base.gohtml" .}}
+{{ template "base.gohtml" . }}
 
-{{ define "style" }}
+{{ define "extrastyle" }}
     <link href="/static/login.css" rel="stylesheet">
-{{end}}
+{{ end }}
+
+{{ define "bodyclass" }}d-flex{{ end }}
 
 {{ define "content" }}
     <main class="form-signin w-100 m-auto">
