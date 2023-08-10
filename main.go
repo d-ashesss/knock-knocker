@@ -3,10 +3,13 @@ package main
 import (
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"net/http"
 	"path/filepath"
 )
+
+const pwd = "$2a$10$S82nUqYWtQ52lO5AJCKFiO..X0los7LU9oOx.CbkhoHVkf4vo7EC6" // 123
 
 type LoginForm struct {
 	Username string `form:"username" binding:"required"`
@@ -31,10 +34,28 @@ func main() {
 	s.POST("/", func(c *gin.Context) {
 		var form LoginForm
 		if err := c.ShouldBind(&form); err != nil {
-			c.HTML(http.StatusBadRequest, "login.gohtml", gin.H{"message": "Invalid username or password"})
+			c.HTML(http.StatusBadRequest, "login.gohtml", gin.H{
+				"username": form.Username,
+				"remember": form.Remember,
+				"invalid":  true,
+				"message":  "Invalid username or password",
+			})
 			return
 		}
-		c.SetCookie("username", form.Username, 3600, "/", "localhost", false, true)
+		if err := bcrypt.CompareHashAndPassword([]byte(pwd), []byte(form.Password)); err != nil {
+			c.HTML(http.StatusBadRequest, "login.gohtml", gin.H{
+				"username": form.Username,
+				"remember": form.Remember,
+				"invalid":  true,
+				"message":  "Invalid username or password",
+			})
+			return
+		}
+		cookieAge := 0
+		if form.Remember {
+			cookieAge = 3600
+		}
+		c.SetCookie("username", form.Username, cookieAge, "/", "localhost", false, true)
 		c.Redirect(http.StatusSeeOther, "/")
 	})
 	log.Printf("Starting server at http://localhost:8181")
