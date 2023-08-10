@@ -21,19 +21,23 @@ func main() {
 	s.StaticFS("/static", http.Dir("static"))
 
 	s.GET("/", func(c *gin.Context) {
-		c.HTML(http.StatusOK, "login.gohtml", gin.H{"message": "HellWorld!"})
+		_, err := c.Cookie("username")
+		if err != nil {
+			c.HTML(http.StatusOK, "login.gohtml", gin.H{})
+			return
+		}
+		c.HTML(http.StatusOK, "index.gohtml", gin.H{"message": "HellWorld!"})
 	})
 	s.POST("/", func(c *gin.Context) {
 		var form LoginForm
 		if err := c.ShouldBind(&form); err != nil {
-			log.Print(err)
 			c.HTML(http.StatusBadRequest, "login.gohtml", gin.H{"message": "Invalid username or password"})
 			return
 		}
-		log.Print(form)
-		log.Printf("login attempt!")
-		c.Redirect(http.StatusMovedPermanently, "/")
+		c.SetCookie("username", form.Username, 3600, "/", "localhost", false, true)
+		c.Redirect(http.StatusSeeOther, "/")
 	})
+	log.Printf("Starting server at http://localhost:8181")
 	if err := s.Run(":8181"); err != nil {
 		log.Fatalf("Failed to run server: %v", err)
 	}
