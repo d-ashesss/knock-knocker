@@ -12,11 +12,11 @@ type App struct {
 	Server *http.Server
 }
 
-func NewApp() *App {
+func NewApp(cfg *Config) *App {
 	h := gin.Default()
 	app := &App{
 		Server: &http.Server{
-			Addr:    ":8181",
+			Addr:    ":" + cfg.Port,
 			Handler: h,
 		},
 	}

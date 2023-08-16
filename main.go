@@ -2,6 +2,7 @@ package main
 
 func main() {
 	//gin.SetMode(gin.ReleaseMode)
-	app := NewApp()
+	appCfg := NewConfig()
+	app := NewApp(appCfg)
 	app.Run()
 }
