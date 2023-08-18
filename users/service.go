@@ -21,14 +21,14 @@ type Service interface {
 	GetUser(username string) (*User, error)
 }
 
-func NewService(db *gorm.DB) Service {
+func NewService(db *gorm.DB) (Service, error) {
 	if err := db.Migrator().AutoMigrate(&User{}); err != nil {
-		panic(err)
+		return nil, err
 	}
 	if err := initFirstUser(db); err != nil {
-		panic(err)
+		return nil, err
 	}
-	return &service{db: db}
+	return &service{db: db}, nil
 }
 
 func initFirstUser(db *gorm.DB) error {
