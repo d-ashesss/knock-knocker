@@ -3,10 +3,9 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"net/http"
 )
-
-const pwd = "$2a$10$S82nUqYWtQ52lO5AJCKFiO..X0los7LU9oOx.CbkhoHVkf4vo7EC6" // 123
 
 type LoginForm struct {
 	Username string `form:"username" binding:"required"`
@@ -34,7 +33,19 @@ func (a *App) handleLogin(c *gin.Context) {
 		})
 		return
 	}
-	if err := bcrypt.CompareHashAndPassword([]byte(pwd), []byte(form.Password)); err != nil {
+	user, err := a.users.GetUser(form.Username)
+	if err != nil {
+		log.Printf("Failed to get user %s: %v", form.Username, err)
+		c.HTML(http.StatusBadRequest, "login.go.html", gin.H{
+			"username": form.Username,
+			"remember": form.Remember,
+			"invalid":  true,
+			"message":  "Invalid username or password",
+		})
+		return
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(form.Password)); err != nil {
+		log.Printf("Invalid password")
 		c.HTML(http.StatusBadRequest, "login.go.html", gin.H{
 			"username": form.Username,
 			"remember": form.Remember,

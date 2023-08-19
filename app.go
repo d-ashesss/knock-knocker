@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/d-ashesss/knock-knocker/users"
 	"github.com/gin-contrib/multitemplate"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -10,15 +11,17 @@ import (
 
 type App struct {
 	Server *http.Server
+	users  users.Service
 }
 
-func NewApp(cfg *Config) *App {
+func NewApp(cfg *Config, usersSrv users.Service) *App {
 	h := gin.Default()
 	app := &App{
 		Server: &http.Server{
 			Addr:    ":" + cfg.Port,
 			Handler: h,
 		},
+		users: usersSrv,
 	}
 
 	h.HTMLRender = loadTemplates("templates")
